@@ -22,7 +22,7 @@
 
 			<v-img
 				:src="posLogo"
-				alt="POS Awesome"
+				alt="POS System"
 				:max-width="isMobile ? 24 : 32"
 				:class="['pos-navbar-logo', isRtl ? 'rtl-logo' : 'ltr-logo']"
 				loading="lazy"
@@ -45,7 +45,7 @@
 				</template>
 				<template v-else>
 					<span class="font-weight-light pos-navbar-title-light">{{ __("POS") }}</span
-					><span class="pos-navbar-title-bold">{{ __("Awesome") }}</span>
+					><span class="pos-navbar-title-bold">{{ __("System") }}</span>
 				</template>
 			</v-toolbar-title>
 		</div>

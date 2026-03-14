@@ -32,8 +32,8 @@
 					{{ __("Invoices saved as POS Invoices") }}
 				</v-alert>
 				<div class="invoice-sections">
-					<div class="invoice-top-grid">
-						<v-card flat class="invoice-section-card pos-themed-card">
+					<div class="invoice-compact-grid">
+						<v-card flat class="invoice-section-card pos-themed-card customer-card">
 							<div class="invoice-section-heading">
 								<h3 class="invoice-section-heading__title">{{ __("Customer Details") }}</h3>
 							</div>
@@ -45,35 +45,6 @@
 							/>
 						</v-card>
 
-						<v-card
-							v-if="pos_profile.posa_use_delivery_charges"
-							flat
-							class="invoice-section-card pos-themed-card"
-						>
-							<div class="invoice-section-heading">
-								<h3 class="invoice-section-heading__title">{{ __("Delivery Charges") }}</h3>
-							</div>
-							<DeliveryCharges
-								ref="deliveryChargesComponent"
-								:pos_profile="pos_profile"
-								:delivery_charges="delivery_charges"
-								:selected_delivery_charge="selected_delivery_charge"
-								:delivery_charges_rate="delivery_charges_rate"
-								:deliveryChargesFilter="deliveryChargesFilter"
-								:formatCurrency="formatCurrency"
-								:currencySymbol="currencySymbol"
-								:readonly="readonly"
-								@update:selected_delivery_charge="
-									(val) => {
-										selected_delivery_charge = val;
-										update_delivery_charges(conversion_rate, currency_precision);
-									}
-								"
-							/>
-						</v-card>
-					</div>
-
-					<div class="invoice-meta-grid">
 						<v-card
 							v-if="pos_profile.posa_allow_change_posting_date"
 							flat
@@ -135,6 +106,31 @@
 									(val) => {
 										conversion_rate = val;
 										update_conversion_rate();
+									}
+								"
+							/>
+						</v-card>
+					</div>
+
+					<div v-if="pos_profile.posa_use_delivery_charges" class="invoice-delivery-grid">
+						<v-card flat class="invoice-section-card pos-themed-card">
+							<div class="invoice-section-heading">
+								<h3 class="invoice-section-heading__title">{{ __("Delivery Charges") }}</h3>
+							</div>
+							<DeliveryCharges
+								ref="deliveryChargesComponent"
+								:pos_profile="pos_profile"
+								:delivery_charges="delivery_charges"
+								:selected_delivery_charge="selected_delivery_charge"
+								:delivery_charges_rate="delivery_charges_rate"
+								:deliveryChargesFilter="deliveryChargesFilter"
+								:formatCurrency="formatCurrency"
+								:currencySymbol="currencySymbol"
+								:readonly="readonly"
+								@update:selected_delivery_charge="
+									(val) => {
+										selected_delivery_charge = val;
+										update_delivery_charges(conversion_rate, currency_precision);
 									}
 								"
 							/>
@@ -1058,7 +1054,7 @@ export default {
 .invoice-shell {
 	display: flex;
 	flex-direction: column;
-	gap: var(--dynamic-sm);
+	gap: 8px;
 	min-height: 0;
 }
 
@@ -1129,7 +1125,7 @@ export default {
 	padding: var(--dynamic-sm);
 	display: flex;
 	flex-direction: column;
-	gap: var(--dynamic-sm);
+	gap: 8px;
 	flex: 1 1 auto;
 	min-height: 0;
 	overflow: hidden;
@@ -1150,19 +1146,6 @@ export default {
 	align-items: stretch;
 }
 
-.invoice-top-grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: var(--dynamic-sm);
-	flex: 0 0 auto;
-}
-
-.invoice-meta-grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: var(--dynamic-sm);
-	flex: 0 0 auto;
-}
 
 .invoice-section-card {
 	background: var(--pos-card-bg) !important;
@@ -1174,16 +1157,37 @@ export default {
 	min-height: fit-content;
 }
 
+.invoice-compact-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
+	gap: 8px;
+	flex: 0 0 auto;
+	align-items: stretch;
+}
+
+.invoice-delivery-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+	flex: 0 0 auto;
+}
+
+.customer-card {
+	min-width: 0;
+}
+
 .invoice-section-heading {
-	padding: 14px 16px 0;
+	padding: 6px 10px 0;
 }
 
 .invoice-section-heading__title {
 	margin: 0;
-	font-size: 1rem;
+	font-size: 0.76rem;
 	font-weight: 700;
-	line-height: 1.25;
+	line-height: 1.1;
 	color: var(--pos-text-primary);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
 }
 
 .invoice-items-card {
@@ -1222,11 +1226,11 @@ export default {
 		padding: 2px 4px;
 	}
 
-	.invoice-meta-grid {
+	.invoice-delivery-grid {
 		grid-template-columns: 1fr;
 	}
 
-	.invoice-top-grid {
+	.invoice-compact-grid {
 		grid-template-columns: 1fr;
 	}
 
@@ -1270,11 +1274,11 @@ export default {
 		padding: 1px 2px;
 	}
 
-	.invoice-meta-grid {
+	.invoice-delivery-grid {
 		grid-template-columns: 1fr;
 	}
 
-	.invoice-top-grid {
+	.invoice-compact-grid {
 		grid-template-columns: 1fr;
 	}
 
@@ -1295,32 +1299,33 @@ export default {
 }
 
 .column-selector-container {
-	display: flex;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
 	align-items: center;
-	justify-content: flex-end;
-	flex-wrap: wrap;
-	gap: 8px;
-	padding: 8px 16px;
+	gap: 6px;
+	padding: 4px 10px 6px;
 	background-color: var(--pos-card-bg);
 	border-radius: 8px 8px 0 0;
 	box-sizing: border-box;
-	margin-bottom: 8px;
+	margin-bottom: 4px;
 }
 
 .item-search-field {
 	width: 100%;
-	max-width: 320px;
-	flex: 1 1 240px;
-	margin-right: auto;
+	max-width: none;
+	flex: 1 1 auto;
+	margin-right: 0;
 }
 
 .column-selector-btn {
-	font-size: 0.875rem;
+	font-size: 0.78rem;
+	min-height: 34px;
+	padding-inline: 8px;
 }
 
 .items-table-wrapper {
 	position: relative;
-	margin-top: var(--dynamic-sm);
+	margin-top: 4px;
 	/* Override parent padding to make table full-width */
 	margin-left: calc(-1 * var(--dynamic-sm));
 	margin-right: calc(-1 * var(--dynamic-sm));
@@ -1366,3 +1371,23 @@ export default {
 	font-size: 0.95rem;
 }
 </style>
+
+
+:deep(.items-table-wrapper .item-search-field .v-field),
+:deep(.items-table-wrapper .item-search-field .v-field__input) {
+	min-height: 38px !important;
+}
+
+:deep(.invoice-section-card .v-field) {
+	min-height: 36px;
+}
+
+:deep(.invoice-section-card .v-field__input) {
+	min-height: 36px !important;
+	padding-top: 4px !important;
+	padding-bottom: 4px !important;
+}
+
+:deep(.invoice-section-card .v-label) {
+	font-size: 0.72rem !important;
+}

@@ -1,10 +1,10 @@
 <template>
 	<v-card
-		class="cards sticky-summary-card mb-0 py-2 px-3 rounded-lg pos-themed-card"
+		class="cards sticky-summary-card mb-0 py-1 px-2 rounded-lg pos-themed-card compact-summary-card"
 	>
 		<v-row dense>
 			<!-- Summary Info -->
-			<v-col cols="12" md="7">
+			<v-col cols="12" md="6">
 				<v-row dense>
 					<v-col
 						cols="12"
@@ -117,7 +117,7 @@
 			</v-col>
 
 			<!-- Action Buttons -->
-			<v-col cols="12" md="5" class="invoice-summary-actions">
+			<v-col cols="12" md="6" class="invoice-summary-actions">
 				<InvoiceActionButtons
 					:pos_profile="pos_profile"
 					:saveLoading="saveLoading"
@@ -376,6 +376,27 @@ async function handleOpenCustomerDisplay() {
 .summary-field:hover {
 	transform: translateY(-1px);
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.compact-summary-card {
+	border-radius: 12px !important;
+}
+
+.summary-field :deep(.v-field),
+.summary-field :deep(.v-field__input),
+:deep(.compact-summary-card .v-text-field .v-field),
+:deep(.compact-summary-card .v-text-field .v-field__input) {
+	min-height: 34px !important;
+}
+
+:deep(.compact-summary-card .v-input__prepend) {
+	padding-top: 0 !important;
+}
+
+:deep(.compact-summary-card .v-field__input) {
+	padding-top: 4px !important;
+	padding-bottom: 4px !important;
+	font-size: 0.92rem !important;
 }
 
 @media (max-width: 768px) {

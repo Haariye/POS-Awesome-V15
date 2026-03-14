@@ -1,11 +1,12 @@
 <template>
-	<v-row align="center" class="items px-3 py-2 mt-0" v-if="pos_profile.posa_allow_multi_currency">
-		<v-col cols="12" sm="4" class="pb-2">
+	<v-row align="center" class="items px-2 py-1 mt-0 compact-row" no-gutters v-if="pos_profile.posa_allow_multi_currency">
+		<v-col cols="12" sm="4" class="pb-0 px-1">
 			<v-select
 				density="compact"
 				variant="solo"
 				color="primary"
-				:label="currencyLabel"
+				:placeholder="currencyLabel"
+				single-line
 				class="pos-themed-input sleek-field"
 				hide-details
 				v-model="internal_selected_currency"
@@ -13,12 +14,13 @@
 				@update:model-value="onCurrencyUpdate"
 			></v-select>
 		</v-col>
-		<v-col cols="12" sm="4" class="pb-2">
+		<v-col cols="12" sm="4" class="pb-0 px-1">
 			<v-text-field
 				density="compact"
 				variant="solo"
 				color="primary"
-				:label="priceListLabel"
+				:placeholder="priceListLabel"
+				single-line
 				class="pos-themed-input sleek-field"
 				hide-details
 				v-model="internal_plc_rate"
@@ -26,12 +28,13 @@
 				@change="onPlcRateChange"
 			></v-text-field>
 		</v-col>
-		<v-col cols="12" sm="4" class="pb-2">
+		<v-col cols="12" sm="4" class="pb-0 px-1">
 			<v-text-field
 				density="compact"
 				variant="solo"
 				color="primary"
-				:label="conversionRateLabel"
+				:placeholder="conversionRateLabel"
+				single-line
 				class="pos-themed-input sleek-field"
 				hide-details
 				v-model="internal_conversion_rate"
@@ -108,4 +111,17 @@ const onConversionChange = () => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.compact-row {
+	min-height: 42px;
+}
+
+:deep(.v-field),
+:deep(.v-field__input) {
+	min-height: 36px !important;
+}
+
+:deep(.v-label) {
+	display: none !important;
+}
+</style>

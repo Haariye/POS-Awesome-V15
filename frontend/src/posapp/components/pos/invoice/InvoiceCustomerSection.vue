@@ -1,11 +1,11 @@
 <template>
-	<v-row align="center" class="items px-3 py-2">
-		<v-col :cols="pos_profile.posa_allow_sales_order ? 9 : 12" class="pb-0 pr-0">
+	<v-row align="center" class="items px-2 py-1 compact-row" no-gutters>
+		<v-col :cols="pos_profile.posa_allow_sales_order ? 9 : 12" class="pb-0 pr-1">
 			<!-- Customer selection component -->
 			<Customer ref="customerComponent" />
 		</v-col>
 		<!-- Invoice Type Selection (Only shown if sales orders are allowed) -->
-		<v-col v-if="pos_profile.posa_allow_sales_order" cols="3" class="pb-4">
+		<v-col v-if="pos_profile.posa_allow_sales_order" cols="3" class="pb-0 pl-1">
 			<v-select
 				density="compact"
 				hide-details
@@ -13,7 +13,8 @@
 				color="primary"
 				class="sleek-field pos-themed-input"
 				:items="invoiceTypes"
-				:label="frappe._('Type')"
+				:placeholder="frappe._('Type')"
+				single-line
 				:model-value="modelValue"
 				@update:model-value="$emit('update:modelValue', $event)"
 				:disabled="modelValue == 'Return'"
@@ -58,3 +59,14 @@ defineExpose({
 
 const frappe = window.frappe;
 </script>
+
+<style scoped>
+.compact-row {
+	min-height: 42px;
+}
+
+:deep(.sleek-field .v-field),
+:deep(.sleek-field .v-field__input) {
+	min-height: 36px !important;
+}
+</style>

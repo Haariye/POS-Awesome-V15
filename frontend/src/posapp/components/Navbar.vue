@@ -62,7 +62,7 @@
 					@open-customer-display="$emit('open-customer-display')"
 					@toggle-offline="toggleManualOffline"
 					@clear-cache="clearCache"
-					@show-about="showAboutDialog = true"
+					@show-about="showAboutDialog = false"
 					@toggle-theme="toggleTheme"
 					@logout="logOut"
 				/>

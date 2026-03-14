@@ -235,7 +235,7 @@
 
 					<v-divider class="menu-section-divider-compact"></v-divider>
 
-					<v-list-item @click="$emit('show-about')" class="menu-item-compact neutral-action">
+					<v-list-item class="menu-item-compact neutral-action" disabled>
 						<template v-slot:prepend>
 							<div class="menu-icon-wrapper-compact neutral-icon">
 								<v-icon color="white" size="16">mdi-information-outline</v-icon>

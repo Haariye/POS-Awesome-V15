@@ -231,8 +231,8 @@ const virtualScrollConfig = computed(() => {
 	const height = containerHeight.value || 600;
 
 	return {
-		itemHeight: tableDensity.value === "compact" ? 48 : tableDensity.value === "comfortable" ? 72 : 60,
-		itemsPerPage: Math.max(20, Math.ceil(height / 60) + 5),
+		itemHeight: tableDensity.value === "compact" ? 40 : tableDensity.value === "comfortable" ? 52 : 46,
+		itemsPerPage: Math.max(24, Math.ceil(height / 44) + 8),
 		bufferSize: itemCount > 1000 ? 20 : itemCount > 500 ? 15 : 10,
 	};
 });

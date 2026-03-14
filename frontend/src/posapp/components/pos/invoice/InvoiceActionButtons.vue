@@ -1,5 +1,5 @@
 <template>
-	<v-row dense>
+	<v-row dense class="compact-actions-row">
 		<v-col cols="6">
 			<v-btn
 				block
@@ -110,7 +110,7 @@
 				block
 				color="success"
 				theme="dark"
-				size="large"
+				size="default"
 				prepend-icon="mdi-credit-card"
 				@click="$emit('show-payment')"
 				class="summary-btn pay-btn"
@@ -175,6 +175,8 @@ const showCustomerDisplayButton = computed(() =>
 	transition: all 0.2s ease !important;
 	position: relative;
 	overflow: hidden;
+	min-height: 36px !important;
+	border-radius: 8px !important;
 }
 
 .summary-btn :deep(.v-btn__content) {
@@ -194,9 +196,9 @@ const showCustomerDisplayButton = computed(() =>
 /* Special styling for the PAY button */
 .pay-btn {
 	font-weight: 600 !important;
-	font-size: 1.1rem !important;
+	font-size: 1rem !important;
 	background: linear-gradient(135deg, #4caf50, #45a049) !important;
-	box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3) !important;
+	box-shadow: 0 2px 8px rgba(76, 175, 80, 0.24) !important;
 }
 
 .pay-btn:hover {
@@ -210,12 +212,12 @@ const showCustomerDisplayButton = computed(() =>
 	.summary-btn {
 		font-size: 0.8rem !important;
 		padding: 4px 8px !important;
-		min-height: 38px !important;
+		min-height: 32px !important;
 	}
 
 	.pay-btn {
 		font-size: 0.95rem !important;
-		min-height: 42px !important;
+		min-height: 38px !important;
 	}
 }
 
@@ -223,12 +225,12 @@ const showCustomerDisplayButton = computed(() =>
 	.summary-btn {
 		font-size: 0.74rem !important;
 		padding: 3px 6px !important;
-		min-height: 34px !important;
+		min-height: 32px !important;
 	}
 
 	.pay-btn {
 		font-size: 0.85rem !important;
-		min-height: 40px !important;
+		min-height: 36px !important;
 	}
 }
 
@@ -246,5 +248,21 @@ const showCustomerDisplayButton = computed(() =>
 :deep([data-theme="dark"]) .summary-btn:hover,
 :deep(.v-theme--dark) .summary-btn:hover {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+.compact-actions-row {
+	row-gap: 4px;
+}
+
+.summary-btn :deep(.v-btn__content) {
+	font-size: 0.82rem;
+	font-weight: 700;
+}
+
+.summary-btn :deep(.v-icon) {
+	font-size: 0.95rem;
+}
+
+.pay-btn {
+	min-height: 42px !important;
 }
 </style>

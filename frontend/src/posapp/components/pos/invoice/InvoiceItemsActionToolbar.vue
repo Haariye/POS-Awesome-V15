@@ -7,8 +7,9 @@
 			density="compact"
 			variant="solo"
 			color="primary"
-			class="item-search-field pos-themed-input"
-			:label="__('Search items or barcode')"
+			class="item-search-field pos-themed-input compact-search-field"
+			:placeholder="__('Search items or barcode')"
+			single-line
 			prepend-inner-icon="mdi-magnify"
 			hide-details
 			clearable
@@ -20,7 +21,7 @@
 			color="primary"
 			prepend-icon="mdi-cog-outline"
 			@click="toggleColumnSelection"
-			class="column-selector-btn"
+			class="column-selector-btn compact-toolbar-btn"
 		>
 			{{ __("Columns") }}
 		</v-btn>
@@ -120,3 +121,18 @@ defineExpose({
 	focusSearch,
 });
 </script>
+
+<style scoped>
+:deep(.compact-search-field .v-field),
+:deep(.compact-search-field .v-field__input) {
+	min-height: 36px !important;
+}
+
+:deep(.compact-search-field .v-label) {
+	display: none !important;
+}
+
+.compact-toolbar-btn {
+	min-height: 34px;
+}
+</style>
