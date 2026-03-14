@@ -101,11 +101,11 @@ export function useInvoiceItems(invoiceType: Ref<string>) {
 			const saved = localStorage.getItem("posawesome_selected_columns");
 			if (saved) {
 				selected_columns.value = JSON.parse(saved);
-			} else if (pos_profile.value) {
-				// Default selection based on POS Profile
+			} else {
 				selected_columns.value = available_columns.value
 					.filter((col) => {
 						if (col.required) return true;
+						if (col.key === "uom") return true;
 						if (col.key === "price_list_rate") return true;
 						if (
 							col.key === "discount_value" &&
