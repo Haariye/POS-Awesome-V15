@@ -4623,7 +4623,9 @@ def get_dashboard_data(
     - current: only current POS profile.
     - specific: selected profile_filter.
     """
-
+    if "Auditor" not in frappe.get_roles(frappe.session.user):
+        frappe.throw(_("Maamulka oo kaliya ayaa access u leh Dashboard"), frappe.PermissionError)
+        
     user = frappe.session.user
     current_profile_doc = _resolve_profile(pos_profile)
     current_profile_name = cstr(current_profile_doc.get("name")).strip()
