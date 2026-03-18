@@ -55,7 +55,6 @@ def get_draft_invoices(pos_opening_shift, doctype="Sales Invoice", limit_page_le
         limit_page_length = 0
 
     filters = {
-        "posa_pos_opening_shift": pos_opening_shift,
         "docstatus": 0,
     }
     if frappe.db.has_column(doctype, "posa_is_printed"):
