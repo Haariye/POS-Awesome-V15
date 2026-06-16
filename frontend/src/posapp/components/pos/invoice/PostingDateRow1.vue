@@ -1,13 +1,15 @@
 <template>
-	<div
+	<v-sheet
 		v-if="pos_profile?.posa_allow_change_posting_date"
-		class="pos-header-bar"
+		class="pos-header-bar px-1 py-1 mb-0"
+		rounded="lg"
+		elevation="0"
 	>
-		<v-row align="center" dense class="ma-0">
+		<v-row align="center" dense class="compact-row">
 			<!-- Posting Date -->
 			<v-col
 				cols="12"
-				:sm="showPriceList ? 6 : 6"
+				:sm="showPriceList ? 4 : 5"
 				:md="showPriceList ? 4 : 5"
 				:lg="showPriceList ? 4 : 5"
 				class="py-0 px-1"
@@ -30,7 +32,7 @@
 			<v-col
 				v-if="showPriceList"
 				cols="12"
-				sm="6"
+				sm="4"
 				md="4"
 				lg="4"
 				class="py-0 px-1"
@@ -38,7 +40,7 @@
 				<v-select
 					v-model="internal_price_list"
 					:items="priceLists"
-					:label="priceListLabel"
+					:placeholder="priceListLabel"
 					density="compact"
 					variant="solo"
 					color="primary"
@@ -53,18 +55,18 @@
 			<v-col
 				v-if="showBalance"
 				cols="12"
-				:sm="showPriceList ? 12 : 6"
+				:sm="showPriceList ? 4 : 7"
 				:md="showPriceList ? 4 : 7"
 				:lg="showPriceList ? 4 : 7"
 				class="py-0 px-1"
 			>
 				<div class="balance-container">
-					<span class="balance-label">{{ __("Customer Balance") }}</span>
+					<span class="balance-label">{{ __("Balance") }}</span>
 
 					<v-skeleton-loader
 						v-if="balance_loading"
 						type="chip"
-						width="120"
+						width="90"
 						class="balance-skeleton"
 					/>
 
@@ -76,12 +78,12 @@
 						<template #activator="{ props: tooltipProps }">
 							<v-chip
 								v-bind="tooltipProps"
-								size="small"
+								size="x-small"
 								color="error"
 								variant="elevated"
 								class="balance-chip font-weight-bold"
 							>
-								<v-icon start icon="mdi-alert-circle" size="14" />
+								<v-icon start icon="mdi-alert-circle" size="12" />
 								<span class="balance-amount">{{ formattedBalance }}</span>
 							</v-chip>
 						</template>
@@ -89,7 +91,7 @@
 
 					<v-chip
 						v-else
-						size="small"
+						size="x-small"
 						color="success"
 						variant="tonal"
 						class="balance-chip font-weight-bold"
@@ -99,7 +101,7 @@
 				</div>
 			</v-col>
 		</v-row>
-	</div>
+	</v-sheet>
 </template>
 
 <script setup lang="ts">
@@ -170,25 +172,26 @@ defineExpose({ focusPostingDate });
 </script>
 
 <style scoped>
-/* Layout-compact: flat inline bar, no own background/shadow */
 .pos-header-bar {
-	display: flex;
-	align-items: center;
-	padding: 2px 4px;
-	flex: 0 1 auto;
-	min-width: 0;
+	background-color: var(--pos-card-bg, #ffffff);
+	border: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+	box-shadow: none;
+	min-height: 0;
 }
 
-/* ── Date Picker ── */
+/* Compact row */
+.compact-row {
+	min-height: 0;
+	margin: 0;
+}
+
+/* Date Picker */
 .pos-date-picker {
 	width: 100%;
 	min-width: 0;
 }
 
-.pos-date-picker :deep(.dp__main) {
-	width: 100%;
-}
-
+.pos-date-picker :deep(.dp__main),
 .pos-date-picker :deep(.dp__input_wrap) {
 	width: 100%;
 }
@@ -196,38 +199,41 @@ defineExpose({ focusPostingDate });
 .pos-date-picker :deep(.dp__input) {
 	width: 100%;
 	min-width: 0;
+	min-height: 32px;
+	height: 32px;
 	background-color: var(--pos-input-bg, #f5f5f5);
 	color: var(--pos-text-primary, #212121);
 	border-radius: 8px;
 	border: 1px solid transparent;
-	padding: 5px 32px 5px 10px;
-	font-size: 0.8125rem;
+	padding: 4px 30px 4px 9px;
+	font-size: 0.82rem;
+	line-height: 1.1;
 	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .pos-date-picker :deep(.dp__input:hover) {
-	border-color: rgba(var(--v-theme-primary), 0.4);
+	border-color: rgba(var(--v-theme-primary), 0.35);
 }
 
 .pos-date-picker :deep(.dp__input:focus) {
 	border-color: rgb(var(--v-theme-primary));
-	box-shadow: 0 0 0 2px rgba(var(--v-theme-primary), 0.15);
+	box-shadow: 0 0 0 1px rgba(var(--v-theme-primary), 0.14);
 }
 
 .pos-date-picker :deep(.dp__input_icon) {
 	inset-inline-start: auto;
-	inset-inline-end: 10px;
+	inset-inline-end: 8px;
 	color: var(--pos-text-secondary, #757575);
 }
 
 .pos-date-picker :deep(.dp__input_icon_pad) {
-	padding-inline-start: 12px;
+	padding-inline-start: 9px;
 }
 
 .pos-date-picker :deep(.dp__menu) {
 	background-color: var(--pos-card-bg, #ffffff);
 	color: var(--pos-text-primary, #212121);
-	border-radius: 12px;
+	border-radius: 10px;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 	z-index: 4000;
 }
@@ -237,29 +243,46 @@ defineExpose({ focusPostingDate });
 	color: var(--pos-text-primary, #212121);
 }
 
-/* ── Price List Select ── */
+/* Price List Select */
 .sleek-select :deep(.v-field) {
 	border-radius: 8px;
+	min-height: 32px;
+	height: 32px;
+	box-shadow: none;
 }
 
 .sleek-select :deep(.v-field__input) {
-	padding-top: 3px;
-	padding-bottom: 3px;
-	font-size: 0.8125rem;
+	min-height: 32px;
+	height: 32px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	font-size: 0.82rem;
+	line-height: 1.1;
 }
 
-/* ── Balance ── */
+.sleek-select :deep(.v-field__prepend-inner) {
+	padding-top: 4px;
+}
+
+.sleek-select :deep(.v-field__append-inner) {
+	padding-top: 4px;
+}
+
+/* Balance */
 .balance-container {
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 8px;
+	gap: 5px;
 	min-width: 0;
 	width: 100%;
+	min-height: 32px;
+	height: 32px;
+	overflow: hidden;
 }
 
 .balance-label {
-	font-size: 0.7rem;
+	font-size: 0.65rem;
 	color: rgba(var(--v-theme-on-surface), 0.6);
 	white-space: nowrap;
 	flex: 0 1 auto;
@@ -269,7 +292,7 @@ defineExpose({ focusPostingDate });
 }
 
 .balance-skeleton :deep(.v-skeleton-loader__chip) {
-	border-radius: 16px;
+	border-radius: 14px;
 	height: 24px;
 }
 
@@ -277,14 +300,18 @@ defineExpose({ focusPostingDate });
 	flex: 0 0 auto;
 	font-variant-numeric: tabular-nums;
 	letter-spacing: 0.01em;
+	height: 24px;
+	min-height: 24px;
+	padding-inline: 7px;
 }
 
 .balance-amount {
 	white-space: nowrap;
-	font-size: 0.8125rem;
+	font-size: 0.78rem;
+	line-height: 1;
 }
 
-/* ── Mobile ── */
+/* Mobile */
 @media (max-width: 599px) {
 	.balance-container {
 		justify-content: space-between;

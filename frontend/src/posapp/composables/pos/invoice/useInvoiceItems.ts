@@ -132,27 +132,21 @@ export function useInvoiceItems(invoiceType: Ref<string>) {
 		try {
 			const saved = localStorage.getItem("posawesome_selected_columns");
 			if (saved) {
-				const parsed: string[] = JSON.parse(saved);
-				// Migrate old "discount_value" key (renamed to "discount_percentage")
-				selected_columns.value = parsed.map((key) =>
-					key === "discount_value" ? "discount_percentage" : key,
-				);
-			} else if (pos_profile.value) {
-				// Default selection based on POS Profile
+				selected_columns.value = JSON.parse(saved);
+			} else {
 				selected_columns.value = available_columns.value
 					.filter((col) => {
 						if (col.required) return true;
+						if (col.key === "uom") return true;
 						if (col.key === "price_list_rate") return true;
 						if (
-							col.key === "discount_percentage" &&
+							col.key === "discount_value" &&
 							pos_profile.value?.posa_display_discount_percentage
-						)
-							return true;
+						) return true;
 						if (
 							col.key === "discount_amount" &&
 							pos_profile.value?.posa_display_discount_amount
-						)
-							return true;
+						) return true;
 						return false;
 					})
 					.map((col) => col.key);

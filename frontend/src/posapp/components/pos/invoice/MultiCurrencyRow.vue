@@ -1,5 +1,5 @@
 <template>
-	<v-row align="center" class="items px-3 py-2 mt-0" v-if="pos_profile.posa_allow_multi_currency">
+	<v-row align="center" class="items px-2 py-1 mt-0" v-if="pos_profile.posa_allow_multi_currency">
 		<v-col cols="12" sm="4" class="pb-2">
 			<v-select
 				density="compact"

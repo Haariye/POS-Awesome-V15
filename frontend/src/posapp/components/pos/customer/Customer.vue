@@ -107,7 +107,7 @@
 			/>
 		</div>
 		<!-- Update customer modal -->
-		<div class="mt-4">
+		<div class="mt-0">
 			<UpdateCustomer />
 		</div>
 	</div>
@@ -117,7 +117,7 @@
 .customer-input-wrapper {
 	width: 100%;
 	max-width: 100%;
-	padding-right: 1.5rem;
+	padding-right: 0.25rem;
 	/* Elegant space at the right edge */
 	box-sizing: border-box;
 	display: flex;
@@ -128,8 +128,8 @@
 .customer-autocomplete {
 	width: 100%;
 	box-sizing: border-box;
-	border-radius: 12px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+	border-radius: 8px;
+	box-shadow: none;
 	transition: box-shadow 0.3s ease;
 	background-color: var(--pos-input-bg);
 }
@@ -172,9 +172,19 @@
 	background-color: var(--pos-input-bg) !important;
 }
 
+.customer-autocomplete :deep(.v-field),
+.customer-autocomplete :deep(.v-field__input) {
+	min-height: 36px !important;
+	padding-top: 4px !important;
+	padding-bottom: 4px !important;
+}
+
+.customer-autocomplete :deep(.v-label) {
+	display: none !important;
+}
 .icon-button {
 	cursor: pointer;
-	font-size: 20px;
+	font-size: 16px;
 	opacity: 0.7;
 	transition: all 0.2s ease;
 }

@@ -1,11 +1,11 @@
 <template>
-	<v-row align="center" class="items px-1 py-0 ma-0">
-		<v-col :cols="pos_profile.posa_allow_sales_order ? 9 : 12" class="pb-0 pr-0 py-0">
+	<v-row align="center" class="items px-2 py-1">
+		<v-col :cols="pos_profile.posa_allow_sales_order ? 9 : 12" class="pb-0 pr-0">
 			<!-- Customer selection component -->
 			<Customer ref="customerComponent" />
 		</v-col>
 		<!-- Invoice Type Selection (Only shown if sales orders are allowed) -->
-		<v-col v-if="pos_profile.posa_allow_sales_order" cols="3" class="py-0">
+		<v-col v-if="pos_profile.posa_allow_sales_order" cols="3" class="pb-1">
 			<v-select
 				density="compact"
 				hide-details

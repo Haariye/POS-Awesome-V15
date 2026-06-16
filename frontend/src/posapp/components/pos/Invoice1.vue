@@ -14,7 +14,7 @@
 				overflow: 'auto',
 			}"
 			:class="[
-				'cards my-0 py-0 mt-0 resizable invoice-main-card',
+				'cards my-0 py-0 mt-3 resizable invoice-main-card',
 				'pos-themed-card',
 				{ 'return-mode': isReturnInvoice },
 			]"
@@ -32,68 +32,48 @@
 					{{ __("Invoices saved as POS Invoices") }}
 				</v-alert>
 				<div class="invoice-sections">
-					<!-- Layout-compact: merged customer + posting into single strip -->
-					<div class="invoice-compact-header">
-						<div class="invoice-compact-header__customer">
+					<div class="invoice-header-grid">
+						<v-card flat class="invoice-section-card pos-themed-card">
+							<div class="invoice-section-heading">
+								<h3 class="invoice-section-heading__title">{{ __("Customer Details") }}</h3>
+							</div>
 							<InvoiceCustomerSection
 								ref="customerSection"
 								:pos_profile="pos_profile"
 								:invoiceTypes="invoiceTypes"
 								v-model="invoiceType"
 							/>
-						</div>
-						<PostingDateRow
-							v-if="pos_profile.posa_allow_change_posting_date"
-							ref="postingDateComponent"
-							:pos_profile="pos_profile"
-							:posting_date_display="posting_date_display"
-							:customer_balance="customer_balance"
-							:customer_balance_currency="customer_balance_currency"
-							:balance_loading="customer_balance_loading"
-							:price-list="selected_price_list"
-							:price-lists="price_lists"
-							:formatCurrency="formatCurrency"
-							:currencySymbol="currencySymbol"
-							@update:posting_date_display="
-								(val) => {
-									posting_date_display = val;
-								}
-							"
-							@update:priceList="
-								(val) => {
-									selected_price_list = val;
-								}
-							"
-						/>
-					</div>
+						</v-card>
 
-					<!-- Optional sections: delivery charges + multi currency (only if enabled) -->
-					<div
-						class="invoice-optional-grid"
-						v-if="pos_profile.posa_use_delivery_charges || pos_profile.posa_allow_multi_currency"
-					>
 						<v-card
-							v-if="pos_profile.posa_use_delivery_charges"
+							v-if="pos_profile.posa_allow_change_posting_date"
 							flat
 							class="invoice-section-card pos-themed-card"
 						>
 							<div class="invoice-section-heading">
-								<h3 class="invoice-section-heading__title">{{ __("Delivery Charges") }}</h3>
+								<h3 class="invoice-section-heading__title">
+									{{ __("Posting and Price List") }}
+								</h3>
 							</div>
-							<DeliveryCharges
-								ref="deliveryChargesComponent"
+							<PostingDateRow
+								ref="postingDateComponent"
 								:pos_profile="pos_profile"
-								:delivery_charges="delivery_charges"
-								:selected_delivery_charge="selected_delivery_charge"
-								:delivery_charges_rate="delivery_charges_rate"
-								:deliveryChargesFilter="deliveryChargesFilter"
+								:posting_date_display="posting_date_display"
+								:customer_balance="customer_balance"
+								:customer_balance_currency="customer_balance_currency"
+								:balance_loading="customer_balance_loading"
+								:price-list="selected_price_list"
+								:price-lists="price_lists"
 								:formatCurrency="formatCurrency"
 								:currencySymbol="currencySymbol"
-								:readonly="readonly"
-								@update:selected_delivery_charge="
+								@update:posting_date_display="
 									(val) => {
-										selected_delivery_charge = val;
-										update_delivery_charges(conversion_rate, currency_precision);
+										posting_date_display = val;
+									}
+								"
+								@update:priceList="
+									(val) => {
+										selected_price_list = val;
 									}
 								"
 							/>
@@ -137,7 +117,37 @@
 						</v-card>
 					</div>
 
+					<v-card
+						v-if="pos_profile.posa_use_delivery_charges"
+						flat
+						class="invoice-section-card pos-themed-card"
+					>
+						<div class="invoice-section-heading">
+							<h3 class="invoice-section-heading__title">{{ __("Delivery Charges") }}</h3>
+						</div>
+						<DeliveryCharges
+							ref="deliveryChargesComponent"
+							:pos_profile="pos_profile"
+							:delivery_charges="delivery_charges"
+							:selected_delivery_charge="selected_delivery_charge"
+							:delivery_charges_rate="delivery_charges_rate"
+							:deliveryChargesFilter="deliveryChargesFilter"
+							:formatCurrency="formatCurrency"
+							:currencySymbol="currencySymbol"
+							:readonly="readonly"
+							@update:selected_delivery_charge="
+								(val) => {
+									selected_delivery_charge = val;
+									update_delivery_charges(conversion_rate, currency_precision);
+								}
+							"
+						/>
+					</v-card>
+
 					<v-card flat class="invoice-section-card invoice-items-card pos-themed-card">
+						<div class="invoice-section-heading">
+							<h3 class="invoice-section-heading__title">{{ __("Invoice Items") }}</h3>
+						</div>
 						<div class="items-table-wrapper">
 							<InvoiceItemsActionToolbar
 								ref="actionToolbar"
@@ -1134,7 +1144,7 @@ export default {
 .invoice-shell {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: var(--dynamic-sm);
 	flex: 1 1 auto;
 	min-height: 0;
 	overflow: auto;
@@ -1180,8 +1190,8 @@ export default {
 
 /* Style for balance value text */
 :deep(.balance-value) {
-	font-size: 1.5rem;
-	font-weight: bold;
+	font-size: 1rem;
+	font-weight: 700;
 	color: var(--primary-start);
 	margin-left: var(--dynamic-xs);
 }
@@ -1209,12 +1219,12 @@ export default {
 	z-index: 1;
 }
 
-/* Layout-compact: tight padding to maximize cart area */
+/* Dynamic padding for responsive layout */
 .dynamic-padding {
-	padding: 6px;
+	padding: 8px;
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 8px;
 	flex: 1 1 auto;
 	min-height: 0;
 	overflow: visible;
@@ -1228,47 +1238,31 @@ export default {
 .invoice-sections {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 8px;
 	flex: 1 1 auto;
 	min-height: 0;
 	overflow: visible;
 	align-items: stretch;
 }
 
-/* Layout-compact: single merged header strip for customer + posting date */
-.invoice-compact-header {
-	display: flex;
-	align-items: stretch;
-	gap: 6px;
-	flex: 0 0 auto;
-	background: var(--pos-card-bg);
-	border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-	border-radius: 12px;
-	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-	padding: 4px;
-	min-height: 0;
-}
-
-.invoice-compact-header__customer {
-	flex: 1 1 auto;
-	min-width: 0;
-	display: flex;
-	align-items: center;
-}
-
-/* Optional grid for delivery + multi-currency (only shown if enabled) */
-.invoice-optional-grid {
+.invoice-header-grid {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 4px;
+	grid-template-columns: 1.15fr 1fr 1fr;
+	gap: 8px;
 	flex: 0 0 auto;
+	align-items: start;
+}
+
+.invoice-top-grid,
+.invoice-meta-grid {
+	display: none;
 }
 
 .invoice-section-card {
 	background: var(--pos-card-bg) !important;
 	border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-	border-radius: 12px;
-	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+	border-radius: var(--pos-radius-md, 18px);
+	box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
 	overflow: hidden;
 	flex: 0 0 auto;
 	min-height: fit-content;
@@ -1279,29 +1273,26 @@ export default {
 }
 
 .invoice-section-heading__title {
-	margin: 0;
-	font-size: 0.75rem;
-	font-weight: 700;
-	line-height: 1.2;
-	color: var(--pos-text-secondary);
+	font-size: 0.78rem;
+	font-weight: 600;
+	line-height: 1.1;
 	text-transform: uppercase;
-	letter-spacing: 0.03em;
+	letter-spacing: 0.02em;
 }
 
-/* Layout-compact: items card fills ALL remaining space */
 .invoice-items-card {
-	padding-bottom: 2px;
+	padding-bottom: var(--dynamic-xs);
 	display: flex;
 	flex-direction: column;
-	flex: 1 1 auto;
-	min-height: 380px;
+	flex: 0 0 auto;
+	min-height: 320px;
 	overflow: visible;
 }
 
 /* Responsive breakpoints */
 @media (max-width: 768px) {
 	.invoice-shell {
-		gap: 4px;
+		gap: var(--dynamic-xs);
 	}
 
 	.invoice-main-card {
@@ -1312,7 +1303,8 @@ export default {
 	}
 
 	.dynamic-padding {
-		padding: 4px;
+		/* Smaller uniform padding on tablets */
+		padding: var(--dynamic-xs);
 		overflow: visible;
 	}
 
@@ -1324,12 +1316,7 @@ export default {
 		padding: 2px 4px;
 	}
 
-	.invoice-compact-header {
-		flex-direction: column;
-		gap: 4px;
-	}
-
-	.invoice-optional-grid {
+	.invoice-header-grid {
 		grid-template-columns: 1fr;
 	}
 
@@ -1338,11 +1325,12 @@ export default {
 	}
 
 	.invoice-items-card {
-		flex: 1 1 auto;
+		flex: 0 0 auto;
 		min-height: 320px;
 	}
 
 	.items-table-wrapper {
+		/* Adjust for smaller padding on tablets */
 		margin-left: 0;
 		margin-right: 0;
 		width: 100%;
@@ -1357,11 +1345,11 @@ export default {
 
 @media (max-width: 480px) {
 	.invoice-main-card {
-		margin-top: 2px !important;
+		margin-top: var(--dynamic-xs) !important;
 	}
 
 	.dynamic-padding {
-		padding: 3px;
+		padding: var(--dynamic-xs);
 	}
 
 	.dynamic-padding .v-row {
@@ -1372,15 +1360,12 @@ export default {
 		padding: 1px 2px;
 	}
 
-	.invoice-compact-header {
-		flex-direction: column;
-	}
-
-	.invoice-optional-grid {
+	.invoice-header-grid {
 		grid-template-columns: 1fr;
 	}
 
 	.items-table-wrapper {
+		/* Adjust for smallest screens */
 		margin-left: 0;
 		margin-right: 0;
 		width: 100%;
@@ -1400,12 +1385,12 @@ export default {
 	align-items: center;
 	justify-content: flex-end;
 	flex-wrap: wrap;
-	gap: 6px;
-	padding: 4px 10px;
+	gap: 8px;
+	padding: 8px 16px;
 	background-color: var(--pos-card-bg);
 	border-radius: 8px 8px 0 0;
 	box-sizing: border-box;
-	margin-bottom: 4px;
+	margin-bottom: 8px;
 }
 
 .item-search-field {
@@ -1427,8 +1412,8 @@ export default {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	flex: 1 1 auto;
-	min-height: 380px;
+	flex: 0 0 auto;
+	min-height: 320px;
 	min-width: 0;
 }
 
@@ -1440,7 +1425,7 @@ export default {
 }
 
 :deep(.items-table-wrapper .posa-items-table-container) {
-	flex: 1 1 auto;
+	flex: 0 0 auto;
 	min-height: 320px;
 	height: auto !important;
 	max-height: none !important;

@@ -110,7 +110,7 @@
 				block
 				color="success"
 				theme="dark"
-				size="default"
+				size="large"
 				prepend-icon="mdi-credit-card"
 				@click="$emit('show-payment')"
 				class="summary-btn pay-btn"
@@ -170,15 +170,13 @@ const showCustomerDisplayButton = computed(() =>
 	color: var(--pos-text-primary) !important;
 }
 
-/* Layout-compact: smaller action buttons to save vertical space */
+/* Enhanced button styling with better performance */
 .summary-btn {
 	transition: all 0.2s ease !important;
 	position: relative;
 	overflow: hidden;
-	min-height: 32px !important;
-	height: 32px !important;
+	min-height: 46px !important;
 	text-transform: none !important;
-	font-size: 0.8rem !important;
 }
 
 .summary-btn :deep(.v-btn__content) {
@@ -198,9 +196,7 @@ const showCustomerDisplayButton = computed(() =>
 /* Special styling for the PAY button */
 .pay-btn {
 	font-weight: 600 !important;
-	font-size: 0.95rem !important;
-	min-height: 36px !important;
-	height: 36px !important;
+	font-size: 1.1rem !important;
 	background: linear-gradient(135deg, #4caf50, #45a049) !important;
 	box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3) !important;
 }
@@ -214,31 +210,27 @@ const showCustomerDisplayButton = computed(() =>
 /* Responsive optimizations */
 @media (max-width: 768px) {
 	.summary-btn {
-		font-size: 0.75rem !important;
-		padding: 2px 6px !important;
-		min-height: 30px !important;
-		height: 30px !important;
+		font-size: 0.8rem !important;
+		padding: 4px 8px !important;
+		min-height: 42px !important;
 	}
 
 	.pay-btn {
-		font-size: 0.85rem !important;
-		min-height: 34px !important;
-		height: 34px !important;
+		font-size: 0.95rem !important;
+		min-height: 48px !important;
 	}
 }
 
 @media (max-width: 480px) {
 	.summary-btn {
-		font-size: 0.7rem !important;
-		padding: 2px 4px !important;
-		min-height: 28px !important;
-		height: 28px !important;
+		font-size: 0.74rem !important;
+		padding: 3px 6px !important;
+		min-height: 34px !important;
 	}
 
 	.pay-btn {
-		font-size: 0.8rem !important;
-		min-height: 30px !important;
-		height: 30px !important;
+		font-size: 0.85rem !important;
+		min-height: 40px !important;
 	}
 }
 

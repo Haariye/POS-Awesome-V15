@@ -80,7 +80,6 @@
 					@lock-pos="lockPosScreen"
 					@open-customer-display="$emit('open-customer-display')"
 					@clear-cache="clearCache"
-					@show-about="showAboutDialog = true"
 					@toggle-theme="toggleTheme"
 					@logout="logOut"
 				/>

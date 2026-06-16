@@ -545,49 +545,49 @@ defineExpose({
 	position: sticky;
 	bottom: 0;
 	z-index: 9;
-	box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+	box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.06);
 }
 
 .sticky-summary-card--dock-safe {
-	margin-bottom: calc(var(--bottom-safe-space) + 8px);
+	margin-bottom: calc(var(--bottom-safe-space) + 4px);
 }
 
 .summary-content {
-	row-gap: 2px;
+	row-gap: 4px;
 }
 
-/* Layout-compact: tight summary hero to save space */
 .summary-hero {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
-	padding: 6px 10px;
-	border-radius: 10px;
+	padding: 8px 10px;
+	border-radius: 14px;
 	background:
-		linear-gradient(135deg, rgba(var(--v-theme-primary), 0.12), rgba(var(--v-theme-success), 0.08)),
+		linear-gradient(135deg, rgba(var(--v-theme-primary), 0.1), rgba(var(--v-theme-success), 0.06)),
 		var(--pos-surface-muted);
-	border: 1px solid rgba(var(--v-theme-primary), 0.12);
+	border: 1px solid rgba(var(--v-theme-primary), 0.1);
+	min-height: 48px;
 }
 
 .summary-hero__copy {
 	display: flex;
 	flex-direction: column;
-	gap: 1px;
+	gap: 2px;
 	min-width: 0;
 }
 
 .summary-hero__eyebrow {
-	font-size: 0.65rem;
+	font-size: 0.62rem;
 	font-weight: 700;
 	text-transform: uppercase;
-	letter-spacing: 0.08em;
+	letter-spacing: 0.06em;
 	color: var(--pos-text-secondary);
 }
 
 .summary-hero__amount {
-	font-size: clamp(1rem, 1.6vw, 1.3rem);
-	line-height: 1.1;
+	font-size: clamp(1rem, 1.6vw, 1.35rem);
+	line-height: 1;
 	color: var(--pos-text-primary);
 }
 
@@ -596,11 +596,12 @@ defineExpose({
 	flex-wrap: wrap;
 	gap: 4px 10px;
 	font-size: 0.72rem;
+	line-height: 1.1;
 	color: var(--pos-text-secondary);
 }
 
 .summary-hero__field-wrap {
-	width: min(200px, 100%);
+	width: min(240px, 100%);
 }
 
 .invoice-summary-actions {
@@ -618,11 +619,23 @@ defineExpose({
 }
 
 .summary-field--alert {
-	margin-bottom: 10px;
+	margin-bottom: 4px;
 }
 
 .summary-field--dock :deep(.v-field) {
 	background: rgba(var(--v-theme-surface), 0.92);
+	min-height: 36px;
+}
+
+.summary-field--dock :deep(.v-field__input) {
+	min-height: 36px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	font-size: 0.85rem;
+}
+
+.summary-field--dock :deep(.v-field__prepend-inner) {
+	padding-top: 6px;
 }
 
 @media (max-width: 1279px) {
@@ -639,7 +652,7 @@ defineExpose({
 
 @media (max-width: 1099px) {
 	.sticky-summary-card--dock-safe {
-		margin-bottom: calc(var(--bottom-safe-space) + 12px);
+		margin-bottom: calc(var(--bottom-safe-space) + 6px);
 	}
 }
 
@@ -653,7 +666,7 @@ defineExpose({
 	.summary-hero {
 		flex-direction: column;
 		align-items: stretch;
-		padding: 6px;
+		padding: 8px;
 	}
 
 	.summary-hero__field-wrap {
@@ -673,7 +686,26 @@ defineExpose({
 	}
 
 	.sticky-summary-card--dock-safe {
-		margin-bottom: calc(var(--bottom-safe-space) + 8px);
+		margin-bottom: calc(var(--bottom-safe-space) + 4px);
 	}
 }
+/* Compact action buttons from child component */
+:deep(.invoice-action-buttons),
+:deep(.action-buttons-grid) {
+	gap: 6px !important;
+}
+
+:deep(.invoice-action-buttons .v-btn),
+:deep(.action-buttons-grid .v-btn) {
+	min-height: 38px !important;
+	height: 38px !important;
+	font-size: 0.78rem !important;
+	letter-spacing: 0.04em !important;
+}
+
+:deep(.invoice-action-buttons .v-btn--size-default),
+:deep(.action-buttons-grid .v-btn--size-default) {
+	--v-btn-height: 38px;
+}
+
 </style>

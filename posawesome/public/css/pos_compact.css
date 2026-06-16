@@ -1,0 +1,339 @@
+/**
+ * POS Awesome – Compact Invoice Layout Override (v3 FINAL)
+ * ========================================================
+ * Install:
+ *   1. Copy to: posawesome/public/css/pos_compact.css
+ *   2. In hooks.py: app_include_css = ["/assets/posawesome/css/pos_compact.css"]
+ *   3. bench clear-cache   (then Ctrl+Shift+R)
+ */
+
+
+/* ==========================================================
+   A. FULL-HEIGHT FLEX CHAIN
+   Every container from the column down to the table must
+   participate in a flex chain so the virtual table gets a
+   real pixel height it can measure.
+   ========================================================== */
+
+/* 1. Invoice column: fill viewport */
+.dynamic-col--invoice {
+	height: calc(100vh - 56px) !important;
+	max-height: calc(100vh - 56px) !important;
+	padding-top: 2px !important;
+	padding-bottom: 2px !important;
+	overflow: hidden !important;
+}
+
+/* 2. Invoice shell: fill column */
+.invoice-shell {
+	display: flex !important;
+	flex-direction: column !important;
+	height: 100% !important;
+	max-height: 100% !important;
+	gap: 2px !important;
+	overflow: hidden !important;
+}
+
+/* 3. Main card: fill remaining space above summary.
+      Override the inline height:var(--container-height). */
+.invoice-main-card {
+	flex: 1 1 0 !important;
+	height: auto !important;
+	max-height: none !important;
+	min-height: 0 !important;
+	margin-top: 0 !important;
+	overflow: hidden !important;
+	resize: none !important;
+}
+
+/* 4. Padding wrapper */
+.dynamic-padding {
+	display: flex !important;
+	flex-direction: column !important;
+	flex: 1 1 0 !important;
+	min-height: 0 !important;
+	padding: 4px !important;
+	gap: 4px !important;
+	overflow: hidden !important;
+}
+
+/* 5. Sections column */
+.invoice-sections {
+	display: flex !important;
+	flex-direction: column !important;
+	flex: 1 1 0 !important;
+	min-height: 0 !important;
+	gap: 4px !important;
+	overflow: hidden !important;
+}
+
+/* 6. Top grids: don't grow */
+.invoice-top-grid,
+.invoice-meta-grid {
+	flex: 0 0 auto !important;
+	gap: 4px !important;
+}
+
+/* 7. Items card: grow to fill */
+.invoice-items-card {
+	display: flex !important;
+	flex-direction: column !important;
+	flex: 1 1 0 !important;
+	min-height: 0 !important;
+	padding-bottom: 2px !important;
+	overflow: hidden !important;
+}
+
+/* 8. Items table wrapper */
+.items-table-wrapper {
+	display: flex !important;
+	flex-direction: column !important;
+	flex: 1 1 0 !important;
+	min-height: 0 !important;
+	margin-top: 2px !important;
+	overflow: hidden !important;
+}
+
+/* 9. Column selector toolbar: fixed at top */
+.column-selector-container {
+	flex: 0 0 auto !important;
+	padding: 3px 10px !important;
+	gap: 4px !important;
+	margin-bottom: 2px !important;
+}
+
+/* ==========================================================
+   A2. CRITICAL TABLE SCROLL FIX
+   The compiled Vue scoped styles use [data-v-xxx] selectors
+   (specificity 0,3,0) with !important to force:
+     height: auto, max-height: none, overflow: visible
+   We MUST beat that specificity. 4-class chains = 0,4,0.
+   ========================================================== */
+
+/* Beat scoped: [data-v] .items-table-wrapper .posa-items-table-container = 0,3,0
+   Our selector: 4 classes = 0,4,0 → wins */
+.invoice-sections .invoice-items-card .items-table-wrapper .posa-items-table-container {
+	flex: 1 1 0 !important;
+	min-height: 0 !important;
+	height: 100% !important;
+	max-height: 100% !important;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
+}
+
+/* Beat scoped: [data-v] .items-table-wrapper .posa-cart-table = 0,3,0 */
+.invoice-sections .invoice-items-card .items-table-wrapper .posa-cart-table {
+	height: 100% !important;
+	max-height: 100% !important;
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+/* Beat scoped: [data-v] .items-table-wrapper .v-table__wrapper = 0,3,0 */
+.invoice-sections .invoice-items-card .items-table-wrapper .v-table__wrapper,
+.invoice-sections .invoice-items-card .items-table-wrapper .v-data-table__wrapper {
+	flex: 1 1 0 !important;
+	min-height: 0 !important;
+	height: 100% !important;
+	max-height: 100% !important;
+	overflow-y: auto !important;
+}
+
+/* 13. Summary card: pinned at bottom */
+.sticky-summary-card {
+	flex: 0 0 auto !important;
+	padding: 4px 6px !important;
+	margin: 0 !important;
+}
+
+
+/* ==========================================================
+   B. COMPACT TOP SECTIONS
+   ========================================================== */
+
+.invoice-section-card {
+	border-radius: 10px !important;
+	box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
+}
+
+.invoice-section-heading {
+	padding: 4px 10px 0 !important;
+	line-height: 1 !important;
+}
+
+.invoice-section-heading__title {
+	font-size: 0.65rem !important;
+	font-weight: 700 !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.06em !important;
+	color: rgba(0,0,0,0.45) !important;
+	line-height: 1.1 !important;
+	margin: 0 !important;
+}
+
+.invoice-section-card .items {
+	padding: 2px 8px !important;
+}
+
+.invoice-section-card .items .v-col {
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+}
+
+.pos-header-bar {
+	padding: 4px 8px !important;
+	margin-bottom: 2px !important;
+}
+
+.pos-header-bar .v-row {
+	margin: 0 !important;
+}
+
+.pos-header-bar .v-col {
+	padding-top: 1px !important;
+	padding-bottom: 1px !important;
+}
+
+.pos-date-picker .dp__input {
+	padding: 5px 32px 5px 10px !important;
+	font-size: 0.8125rem !important;
+	border-radius: 8px !important;
+}
+
+.sleek-select .v-field__input {
+	padding-top: 3px !important;
+	padding-bottom: 3px !important;
+	font-size: 0.8125rem !important;
+	min-height: 28px !important;
+}
+
+.sleek-select .v-field {
+	border-radius: 8px !important;
+}
+
+.balance-label {
+	font-size: 0.68rem !important;
+}
+
+.balance-amount {
+	font-size: 0.8rem !important;
+}
+
+.balance-container {
+	gap: 4px !important;
+	padding: 2px 0 !important;
+}
+
+
+/* ==========================================================
+   C. COMPACT BOTTOM SUMMARY + BUTTONS
+   ========================================================== */
+
+.summary-content {
+	row-gap: 2px !important;
+}
+
+.summary-hero {
+	padding: 6px 10px !important;
+	gap: 8px !important;
+	border-radius: 10px !important;
+}
+
+.summary-hero__eyebrow {
+	font-size: 0.6rem !important;
+}
+
+.summary-hero__amount {
+	font-size: 1.1rem !important;
+	line-height: 1.1 !important;
+}
+
+.summary-hero__meta {
+	font-size: 0.7rem !important;
+	gap: 4px 8px !important;
+}
+
+.summary-hero__copy {
+	gap: 1px !important;
+}
+
+.summary-hero__field-wrap {
+	width: min(200px, 100%) !important;
+}
+
+.summary-btn {
+	min-height: 30px !important;
+	height: 30px !important;
+	max-height: 30px !important;
+	font-size: 0.78rem !important;
+	padding: 0 8px !important;
+	text-transform: none !important;
+}
+
+.summary-btn .v-btn__prepend {
+	margin-inline-end: 4px !important;
+}
+
+.summary-btn .v-btn__prepend .v-icon {
+	font-size: 16px !important;
+}
+
+.pay-btn {
+	min-height: 34px !important;
+	height: 34px !important;
+	max-height: 34px !important;
+	font-size: 0.9rem !important;
+}
+
+.invoice-summary-actions .v-row {
+	margin: 0 !important;
+}
+
+.invoice-summary-actions .v-col {
+	padding: 2px !important;
+}
+
+
+/* ==========================================================
+   D. RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 1099px) {
+	.dynamic-col--invoice {
+		height: calc(100vh - 56px) !important;
+		max-height: calc(100vh - 56px) !important;
+	}
+}
+
+@media (max-width: 768px) {
+	.invoice-top-grid {
+		grid-template-columns: 1fr !important;
+	}
+	.invoice-meta-grid {
+		grid-template-columns: 1fr !important;
+	}
+	.summary-btn {
+		min-height: 28px !important;
+		height: 28px !important;
+		font-size: 0.72rem !important;
+	}
+	.pay-btn {
+		min-height: 32px !important;
+		height: 32px !important;
+	}
+}
+
+@media (max-width: 480px) {
+	.summary-btn {
+		min-height: 26px !important;
+		height: 26px !important;
+		font-size: 0.68rem !important;
+	}
+	.pay-btn {
+		min-height: 28px !important;
+		height: 28px !important;
+	}
+	.summary-hero {
+		padding: 4px 8px !important;
+	}
+}
