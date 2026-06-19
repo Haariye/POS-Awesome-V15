@@ -655,7 +655,7 @@ const add_item = async (item, optionsOrQty: any = {}) => {
 			!options.suppressNegativeWarning,
 			true,
 			isReturnInvoice.value,
-			deferStockValidationToPayment.value,
+			true,
 		);
 
 		if (isValid) {

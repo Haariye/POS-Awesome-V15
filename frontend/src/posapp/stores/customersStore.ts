@@ -33,9 +33,18 @@ const PAGE_SIZE = 1000;
 const CUSTOMER_SCOPE_STORAGE_KEY = "posa_customers_profile_scope";
 
 function getCustomerProfileScope(profile: POSProfile | null): string {
-	const profileName =
-		typeof profile?.name === "string" ? profile.name.trim() : "";
-	return profileName || "";
+    const profileName =
+        typeof profile?.name === "string" ? profile.name.trim() : "";
+
+    const customerGroups = Array.isArray((profile as any)?.customer_groups)
+        ? (profile as any).customer_groups
+              .map((row: any) => row?.customer_group)
+              .filter(Boolean)
+              .sort()
+              .join("|")
+        : "";
+
+    return [profileName, customerGroups].filter(Boolean).join("::");
 }
 
 function getStoredCustomerScope(): string {

@@ -45,7 +45,7 @@
 				</template>
 				<template v-else>
 					<span class="font-weight-light pos-navbar-title-light">{{ __("POS") }}</span
-					><span class="pos-navbar-title-bold">{{ __("Awesome") }}</span>
+					><span class="pos-navbar-title-bold">{{ __("System") }}</span>
 				</template>
 			</v-toolbar-title>
 		</div>

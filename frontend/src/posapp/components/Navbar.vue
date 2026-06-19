@@ -302,7 +302,7 @@ export default {
 				{ text: "Barcode Printing", icon: "mdi-barcode", to: "/barcode" },
 			],
 			items: [],
-			company: "POS Awesome",
+			company: "POS System",
 			companyImg: posLogo,
 			showAboutDialog: false,
 			showOfflineInvoices: false,

@@ -106,6 +106,9 @@ def get_customer_balance(customer, company=None):
 @frappe.whitelist()
 def get_customer_names(pos_profile, limit=None, offset=None, start_after=None, modified_after=None):
     _pos_profile = json.loads(pos_profile)
+    if _pos_profile.get("name") and not _pos_profile.get("customer_groups"):
+        _pos_profile = frappe.get_cached_doc("POS Profile", _pos_profile.get("name")).as_dict()
+        pos_profile = json.dumps(_pos_profile, default=str)
     ttl = _pos_profile.get("posa_server_cache_duration")
     if ttl:
         ttl = int(ttl) * 60
@@ -116,6 +119,8 @@ def get_customer_names(pos_profile, limit=None, offset=None, start_after=None, m
 
     def _get_customer_names(pos_profile, limit=None, offset=None, start_after=None, modified_after=None):
         pos_profile = json.loads(pos_profile)
+        if pos_profile.get("name") and not pos_profile.get("customer_groups"):
+            pos_profile = frappe.get_cached_doc("POS Profile", pos_profile.get("name")).as_dict()
         filters = {"disabled": 0}
 
         customer_groups = get_customer_groups(pos_profile)
@@ -163,6 +168,8 @@ def get_customer_names(pos_profile, limit=None, offset=None, start_after=None, m
 @frappe.whitelist()
 def get_customers_count(pos_profile):
     pos_profile = json.loads(pos_profile)
+    if pos_profile.get("name") and not pos_profile.get("customer_groups"):
+        pos_profile = frappe.get_cached_doc("POS Profile", pos_profile.get("name")).as_dict()
     filters = {"disabled": 0}
     customer_groups = get_customer_groups(pos_profile)
     if customer_groups:

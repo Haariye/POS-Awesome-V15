@@ -71,9 +71,13 @@ def get_draft_invoices(
         if cashier:
             filters["owner"] = cashier
     else:
-        filters["posa_pos_opening_shift"] = pos_opening_shift
-    if frappe.db.has_column(doctype, "posa_is_printed"):
-        filters["posa_is_printed"] = 0
+        if not pos_profile and pos_opening_shift:
+            pos_profile = frappe.get_cached_value(
+                "POS Opening Shift", pos_opening_shift, "pos_profile"
+            )
+
+        if pos_profile:
+            filters["pos_profile"] = pos_profile
 
     invoices_list = frappe.get_list(
         doctype,
