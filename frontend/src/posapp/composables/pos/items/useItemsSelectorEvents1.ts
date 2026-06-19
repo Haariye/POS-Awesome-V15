@@ -35,8 +35,6 @@ type UseItemsSelectorEventsArgs = {
 	requestItemSearchFocus: () => void;
 	handleCartQuantitiesUpdated: (..._args: any[]) => void;
 	handleRemoteStockAdjustment: (_payload: unknown) => void;
-	// Price priority fix: re-load item list with the new customer's pricing.
-	handleSetCustomer?: (_customer: unknown) => void;
 };
 
 type ItemsSelectorEventsCleanup = () => void;
@@ -56,7 +54,6 @@ export function registerItemsSelectorEvents({
 	requestItemSearchFocus,
 	handleCartQuantitiesUpdated,
 	handleRemoteStockAdjustment,
-	handleSetCustomer,
 }: UseItemsSelectorEventsArgs): ItemsSelectorEventsCleanup {
 	if (!eventBus?.on) {
 		return () => {};
@@ -97,19 +94,12 @@ export function registerItemsSelectorEvents({
 		}
 	};
 
-	const handleSetCustomerEvent = (customer: unknown) => {
-		if (typeof handleSetCustomer === "function") {
-			handleSetCustomer(customer);
-		}
-	};
-
 	eventBus.on("update_currency", handleCurrencyUpdate);
 	eventBus.on("update_customer_price_list", handleCustomerPriceListUpdate);
 	eventBus.on("update_buying_price_list", handleBuyingPriceListUpdate);
 	eventBus.on("focus_item_search", requestItemSearchFocus);
 	eventBus.on("cart_quantities_updated", handleCartQuantitiesUpdated);
 	eventBus.on("remote_stock_adjustment", handleRemoteStockAdjustment);
-	eventBus.on("set_customer", handleSetCustomerEvent);
 
 	return () => {
 		eventBus.off?.("update_currency", handleCurrencyUpdate);
@@ -118,6 +108,5 @@ export function registerItemsSelectorEvents({
 		eventBus.off?.("focus_item_search", requestItemSearchFocus);
 		eventBus.off?.("cart_quantities_updated", handleCartQuantitiesUpdated);
 		eventBus.off?.("remote_stock_adjustment", handleRemoteStockAdjustment);
-		eventBus.off?.("set_customer", handleSetCustomerEvent);
 	};
 }

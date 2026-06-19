@@ -112,35 +112,17 @@ export function useStockUtils() {
 			: null;
 		let uomRate: number | null = null;
 		const hasPriceList = priceList !== null && priceList !== undefined;
-		// Price priority fix: the customer must be part of the cache key and the
-		// lookup, otherwise a customer-specific UOM rate (e.g. kiish $3.50) gets
-		// confused with the general/group rate (e.g. $5.10) that shares the same
-		// item + UOM. `context.customer` is the selected customer name (string).
-		const customerName =
-			typeof context.customer === "string"
-				? context.customer
-				: context.customer && context.customer.name
-					? context.customer.name
-					: "";
 		const uomPriceCache: Map<string, number | null> =
 			context._uomPriceCache instanceof Map
 				? context._uomPriceCache
 				: (context._uomPriceCache = new Map());
-		const uomPriceCacheKey = `${hasPriceList ? String(priceList) : ""}::${String(customerName || "")}::${String(item.item_code || "")}::${String(new_uom.uom || "")}`;
+		const uomPriceCacheKey = `${hasPriceList ? String(priceList) : ""}::${String(item.item_code || "")}::${String(new_uom.uom || "")}`;
 
 		if (uomPriceCache.has(uomPriceCacheKey)) {
 			uomRate = uomPriceCache.get(uomPriceCacheKey) ?? null;
 		}
 
-		// Only trust the local price-list cache when NO customer is selected.
-		// The cache stores a single rate per item+UOM and is not customer aware,
-		// so for a specific customer we must let the backend decide (below).
-		if (
-			uomRate === null &&
-			!customerName &&
-			priceList &&
-			context.getCachedPriceListItems
-		) {
+		if (priceList && context.getCachedPriceListItems) {
 			const cached = context.getCachedPriceListItems(priceList) || [];
 			const match = cached.find(
 				(p) => p.item_code === item.item_code && p.uom === new_uom.uom,
@@ -162,9 +144,6 @@ export function useStockUtils() {
 						item_code: item.item_code,
 						price_list: priceList,
 						uom: new_uom.uom,
-						// Pass the customer so the backend applies the correct
-						// customer -> customer group -> general priority.
-						customer: customerName || undefined,
 					},
 				});
 				if (r.message) {

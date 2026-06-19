@@ -28,19 +28,9 @@ function refreshInvoiceTotals(context: any) {
 	}
 }
 
-export async function update_items_details(
-	context: any,
-	items: any[],
-	options: { repriceFromCustomer?: boolean } = {},
-) {
+export async function update_items_details(context: any, items: any[]) {
 	if (!items?.length) return;
 	if (!context.pos_profile) return;
-
-	// When true, a price lock that originated from a UOM change
-	// (_manual_rate_set_from_uom) is treated as overridable so a customer
-	// change can re-price the line. Genuine manual price edits and applied
-	// offers are still respected.
-	const repriceFromCustomer = options.repriceFromCustomer === true;
 
 	const currentDoc = context.get_invoice_doc
 		? context.get_invoice_doc()
@@ -58,16 +48,6 @@ export async function update_items_details(
 				price_list: context.get_price_list
 					? context.get_price_list()
 					: null,
-				// Price priority fix: forward the selected customer so the
-				// backend re-prices with customer -> customer group -> general
-				// priority. Without this, re-pricing on customer change always
-				// used the general/blank-customer rate.
-				customer:
-					typeof context.customer === "string" && context.customer.trim()
-						? context.customer.trim()
-						: context.customer && context.customer.name
-							? context.customer.name
-							: undefined,
 			},
 		});
 
@@ -124,14 +104,8 @@ export async function update_items_details(
 						updated_item.price_list_currency ||
 						item.price_list_currency ||
 						context.selected_currency;
-					// A UOM-derived rate lock should not block a customer-change
-					// re-price; only a genuine manual edit (typed rate) stays locked.
-					const lockedFromUomOnly =
-						item._manual_rate_set === true &&
-						item._manual_rate_set_from_uom === true;
 					const manualLocked =
-						item._manual_rate_set === true &&
-						!(repriceFromCustomer && lockedFromUomOnly);
+						item._manual_rate_set === true;
 					const shouldOverrideRate =
 						!lockReturnPricing &&
 						!item.locked_price &&
@@ -146,69 +120,6 @@ export async function update_items_details(
 									price,
 									priceCurrency,
 								);
-							// On a customer-change re-price we must fully resync the
-							// line's price fields. _applyPriceListRate only updates
-							// price_list_rate; the charged rate is driven by
-							// base_rate (see calcItemPrice), which is NOT reseeded
-							// when base_price_list_rate already exists — so without
-							// this the Rate reverts to the old value. We rewrite all
-							// four fields consistently from the new price.
-							if (repriceFromCustomer) {
-								const hasLineDiscount =
-									(Number.parseFloat(
-										String(item.discount_amount ?? 0),
-									) || 0) > 0 ||
-									(Number.parseFloat(
-										String(item.discount_percentage ?? 0),
-									) || 0) > 0;
-								if (!hasLineDiscount) {
-									let displayRate = price;
-									let baseRate = price;
-									if (context._computePriceConversion) {
-										const converted =
-											context._computePriceConversion(
-												price,
-												priceCurrency,
-											);
-										if (
-											converted.price_list_rate !==
-											undefined
-										) {
-											displayRate =
-												converted.price_list_rate;
-										}
-										if (
-											converted.base_price_list_rate !==
-											undefined
-										) {
-											baseRate =
-												converted.base_price_list_rate;
-										}
-									}
-									const fmt = (v: number) =>
-										context.flt
-											? context.flt(
-													v,
-													context.currency_precision,
-												)
-											: v;
-									// Keep all four fields in lock-step so neither
-									// calcItemPrice nor a currency recalc reverts it.
-									item.price_list_rate = fmt(displayRate);
-									item.base_price_list_rate = fmt(baseRate);
-									item.rate = fmt(displayRate);
-									item.base_rate = fmt(baseRate);
-									item.discount_amount = 0;
-									item.base_discount_amount = 0;
-								}
-								// If this line's price had been locked by a UOM
-								// change, keep it flagged so it stays stable until
-								// the next UOM or customer change.
-								if (lockedFromUomOnly) {
-									item._manual_rate_set = true;
-									item._manual_rate_set_from_uom = true;
-								}
-							}
 						}
 					} else if (
 						!lockReturnPricing &&

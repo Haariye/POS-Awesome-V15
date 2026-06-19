@@ -42,10 +42,6 @@ interface InvoiceWatchersVm {
 	set_delivery_charges: () => void;
 	sync_invoice_customer_details: (_details?: Record<string, unknown>) => void;
 	update_item_detail: (_item: WatcherItem) => void;
-	update_items_details?: (
-		_items: WatcherItem[],
-		_options?: { repriceFromCustomer?: boolean },
-	) => unknown;
 	emitCartQuantities?: () => void;
 	scheduleOfferRefresh?: () => void;
 	schedulePricingRuleApplication?: (_force?: boolean) => void;
@@ -120,23 +116,6 @@ const invoiceWatchers: Record<string, unknown> & ThisType<InvoiceWatchersVm> = {
 		}
 		this.set_delivery_charges();
 		this.sync_invoice_customer_details();
-		// Responsiveness fix: re-price the existing cart immediately on customer
-		// change instead of waiting for the customer-info network round-trip.
-		// `update_items_details` now forwards the customer, so customer-specific
-		// Item Prices are applied right away — matching V14 behaviour even when
-		// the new customer shares the same price list as the previous one.
-		if (
-			this.items &&
-			this.items.length > 0 &&
-			typeof this.update_items_details === "function"
-		) {
-			this.update_items_details(this.items, { repriceFromCustomer: true });
-		}
-		// Also tell the item selector (left panel) to reload its list with the
-		// new customer so its displayed rates refresh too.
-		if (this.eventBus && typeof this.eventBus.emit === "function") {
-			this.eventBus.emit("set_customer", this.customer || null);
-		}
 	},
 	// Watch for customer_info change and emit to edit form
 	customer_info() {

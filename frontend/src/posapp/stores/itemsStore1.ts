@@ -977,28 +977,6 @@ export const useItemsStore = defineStore("items", () => {
 		await loadItems({ forceServer: true });
 	};
 
-	// Price priority fix: update the active customer and reload the item list so
-	// the left-panel rates reflect customer-specific Item Prices. This is needed
-	// because `customer.value` was previously only set during initialize(), so
-	// changing customer mid-session left the selector showing stale rates — even
-	// when the new customer shares the same price list (no customerPriceList
-	// change to trigger a reload).
-	const setCustomerAndReload = async (
-		cust: string | null,
-		priceList: string | null = null,
-	) => {
-		const nextCustomer = cust || null;
-		const customerChanged = customer.value !== nextCustomer;
-		customer.value = nextCustomer;
-		if (priceList) {
-			customerPriceList.value = priceList;
-		}
-		// Only reload when something actually changed and items are present.
-		if (customerChanged && itemsLoaded.value) {
-			await refreshItems();
-		}
-	};
-
 	const addScannedItem = async (barcode: string) => {
 		let item = getItemByBarcode(barcode);
 		if (item) return item;
@@ -1192,7 +1170,6 @@ export const useItemsStore = defineStore("items", () => {
 		filterByGroup,
 		updatePriceList,
 		refreshItems,
-		setCustomerAndReload,
 		appendCachedItemsPage,
 		resetCachedItemsForGroup,
 		backgroundSyncItems: triggerBackgroundSync, // mapped

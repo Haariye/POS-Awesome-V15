@@ -760,46 +760,6 @@ def _normalize_return_payment_rows(invoice_doc, conversion_rate=1):
     invoice_doc.base_paid_amount = flt(sum(p.base_amount for p in invoice_doc.payments or []))
 
 
-def _enforce_zero_rated_items(invoice_doc):
-    """Restore v14 behavior for zero-rate items.
-
-    If the POS Profile has `posa_allow_zero_rated_items` enabled, a zero-rate
-    line is treated as a free item (price_list_rate = 0, is_free_item = 1).
-    Otherwise selling a zero-rate item is blocked. This validation was present
-    in v14 (posapp.py update_invoice) but was lost during the v15 refactor, so
-    the POS Profile setting had no effect. Returns are intentionally skipped
-    because return lines can legitimately carry adjusted/zero values.
-    """
-
-    if invoice_doc.get("is_return"):
-        return
-
-    pos_profile = invoice_doc.get("pos_profile")
-    if not pos_profile:
-        return
-
-    allow_zero_rated_items = frappe.get_cached_value(
-        "POS Profile", pos_profile, "posa_allow_zero_rated_items"
-    )
-
-    for item in invoice_doc.items:
-        if not item.rate or flt(item.rate) == 0:
-            # A line flagged as free by a pricing rule / offer is allowed.
-            if cint(item.get("is_free_item")):
-                continue
-            if allow_zero_rated_items:
-                item.price_list_rate = 0.00
-                item.is_free_item = 1
-            else:
-                frappe.throw(
-                    _("Rate cannot be zero for item {0}").format(item.item_code)
-                )
-        else:
-            # Don't clobber an existing free-item flag set by pricing rules.
-            if not cint(item.get("is_free_item")):
-                item.is_free_item = 0
-
-
 @frappe.whitelist()
 def update_invoice(data):
     currency_cache = {}
@@ -1013,9 +973,6 @@ def update_invoice(data):
 
     _normalize_return_payment_rows(invoice_doc, conversion_rate)
 
-    # Enforce the POS Profile zero-rate policy (restored from v14).
-    _enforce_zero_rated_items(invoice_doc)
-
     invoice_doc.flags.ignore_permissions = True
     frappe.flags.ignore_account_permission = True
     invoice_doc.docstatus = 0
@@ -1199,11 +1156,6 @@ def submit_invoice(invoice, data, submit_in_background=False):
     _validate_stock_on_invoice(invoice_doc)
 
     _apply_write_off_settings(invoice_doc, data)
-
-    # Enforce the POS Profile zero-rate policy on submit as well, in case this
-    # invoice reached submit_invoice via an existing draft (which does not call
-    # update_invoice). Restored from v14.
-    _enforce_zero_rated_items(invoice_doc)
 
     invoice_doc.flags.ignore_permissions = True
     frappe.flags.ignore_account_permission = True

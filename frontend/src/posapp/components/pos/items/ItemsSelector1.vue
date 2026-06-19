@@ -655,7 +655,7 @@ const add_item = async (item, optionsOrQty: any = {}) => {
 			!options.suppressNegativeWarning,
 			true,
 			isReturnInvoice.value,
-			true,
+			deferStockValidationToPayment.value,
 		);
 
 		if (isValid) {
@@ -908,21 +908,6 @@ onMounted(async () => {
 		requestItemSearchFocus,
 		handleCartQuantitiesUpdated: itemAvailability.handleCartQuantitiesUpdated,
 		handleRemoteStockAdjustment,
-		// Price priority fix: when the customer changes, update the items store
-		// customer and reload the item list so left-panel rates reflect the
-		// customer-specific Item Prices (even if the price list is unchanged).
-		handleSetCustomer: (customer) => {
-			const store = itemsIntegration.itemsStore;
-			if (store && typeof store.setCustomerAndReload === "function") {
-				const name =
-					typeof customer === "string"
-						? customer
-						: customer && (customer as any).name
-							? (customer as any).name
-							: null;
-				void store.setCustomerAndReload(name);
-			}
-		},
 	});
 
 	stopItemInitializationWatcher = startItemsSelectorInitialization({

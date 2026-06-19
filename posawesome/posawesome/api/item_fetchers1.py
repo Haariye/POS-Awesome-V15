@@ -52,18 +52,8 @@ def _fetch_item_prices(
     item_codes: Tuple[str, ...],
     customer: str,
     today: str,
-    customer_group: str = "",
 ):
-    """Return raw Item Price rows honoring date, currency and customer filters.
-
-    NOTE (price priority fix): we deliberately fetch ALL candidate rows that
-    could apply to this customer context — customer-specific rows, the
-    customer's customer-group rows (Item Price.customer can hold a Customer
-    Group when the price was defined for a group), and general rows with no
-    customer.  Ranking/selection happens later in Python (`_price_rank` /
-    `_select_price`) so that priority is deterministic and never decided by
-    creation/modified date.
-    """
+    """Return raw Item Price rows honoring date, currency and customer filters."""
 
     if not item_codes:
         return []
@@ -74,11 +64,7 @@ def _fetch_item_prices(
         "item_codes": item_codes,
         "today": today,
         "customer": customer or "",
-        "customer_group": customer_group or "",
     }
-    # We now also return the `customer` column verbatim (already did) so the
-    # Python ranking layer can classify each row. Ordering here is only a
-    # stable tie-breaker; real priority is applied in `_select_price`.
     query = """
         SELECT
             item_code,
@@ -101,28 +87,13 @@ def _fetch_item_prices(
                 AND item_code IN %(item_codes)s
                 AND currency = %(currency)s
                 AND (valid_from IS NULL OR valid_from <= %(today)s)
-                AND IFNULL(customer, '') IN ('', %(customer)s, %(customer_group)s)
+                AND IFNULL(customer, '') IN ('', %(customer)s)
                 AND (valid_upto IS NULL OR valid_upto = '' OR valid_upto >= %(today)s)
         ) ip
         ORDER BY IFNULL(customer, '') ASC, valid_from ASC, valid_upto DESC
     """
 
     return frappe.db.sql(query, params, as_dict=True)
-
-
-def _get_customer_group(customer: Optional[str]) -> str:
-    """Return the customer group for a customer, or '' when unavailable.
-
-    Used only to widen the Item Price SQL filter so that group-level prices
-    become candidates. Selection priority is still applied in Python.
-    """
-
-    if not customer:
-        return ""
-    try:
-        return frappe.db.get_value("Customer", customer, "customer_group") or ""
-    except Exception:
-        return ""
 
 
 def get_item_prices(
@@ -132,19 +103,11 @@ def get_item_prices(
     customer: Optional[str],
     today: Optional[str] = None,
     ttl: Optional[int] = None,
-    customer_group: Optional[str] = None,
 ):
     """Fetch Item Price data with optional redis caching based on TTL."""
 
     cached = _cache_wrapper(_price_cache, ttl, _fetch_item_prices)
-    return cached(
-        price_list,
-        currency,
-        tuple(item_codes),
-        customer or "",
-        today or nowdate(),
-        customer_group or "",
-    )
+    return cached(price_list, currency, tuple(item_codes), customer or "", today or nowdate())
 
 
 def _fetch_bin_qty(warehouse: str, item_codes: Tuple[str, ...]):
@@ -485,8 +448,7 @@ def get_bom_costs(meta_rows: Sequence[frappe._dict], ttl: Optional[int] = None):
 
 @dataclass(frozen=True)
 class ItemLookupData:
-    # price_map: { item_code: { uom_key: { rank: row } } }  (rank from _price_rank)
-    price_map: Dict[str, Dict[str, Dict[int, frappe._dict]]]
+    price_map: Dict[str, Dict[str, frappe._dict]]
     stock_map: Dict[str, float]
     meta_map: Dict[str, frappe._dict]
     uom_map: Dict[str, List[Dict[str, Any]]]
@@ -496,84 +458,27 @@ class ItemLookupData:
     bom_map: Dict[str, Dict[str, Any]]
 
 
-def _price_rank(row_customer: str, customer: Optional[str], customer_group: Optional[str]) -> int:
-    """Classify an Item Price row by specificity. Higher rank = higher priority.
-
-    3 = customer-specific  (Item Price.customer == POS customer)
-    2 = customer-group     (Item Price.customer == POS customer's group)
-    1 = general            (Item Price.customer is blank)
-    0 = belongs to a different customer/group  -> must be ignored
-    """
-
-    rc = (row_customer or "").strip()
-    if not rc:
-        return 1
-    if customer and rc == customer:
-        return 3
-    if customer_group and rc == customer_group:
-        return 2
-    return 0
-
-
 def _select_price(
-    price_rows: Dict[str, Dict[str, frappe._dict]],
+    price_rows: Dict[str, frappe._dict],
     requested_uom: Optional[str],
     stock_uom: Optional[str],
 ) -> frappe._dict:
-    """Select the most appropriate price row for the requested item context.
-
-    `price_rows` is now a nested map:  { uom_key: { rank: row } }.
-    Selection follows a deterministic priority that combines UOM specificity
-    with customer specificity:
-
-        1. requested_uom  + customer
-        2. requested_uom  + customer_group
-        3. requested_uom  + general
-        4. stock_uom      + customer
-        5. stock_uom      + customer_group
-        6. stock_uom      + general
-        7. any remaining UOM, highest available rank (last-resort fallback)
-
-    Rate is therefore never decided by creation/modified date.
-    """
+    """Select the most appropriate price row for the requested item context."""
 
     if not price_rows:
         return frappe._dict()
 
-    def pick(uom_key: Optional[str]) -> Optional[frappe._dict]:
-        if not uom_key:
-            return None
-        ranks = price_rows.get(uom_key)
-        if not ranks:
-            return None
-        # highest rank wins (3 > 2 > 1); rank 0 rows were never stored
-        for rank in (3, 2, 1):
-            if rank in ranks:
-                return ranks[rank]
-        return None
+    if requested_uom and requested_uom in price_rows:
+        return price_rows[requested_uom]
 
-    # UOM-specific (requested UOM), customer -> group -> general
-    chosen = pick(requested_uom)
-    if chosen is not None:
-        return chosen
+    if stock_uom and stock_uom in price_rows:
+        return price_rows[stock_uom]
 
-    # Stock UOM, customer -> group -> general
-    chosen = pick(stock_uom)
-    if chosen is not None:
-        return chosen
+    if "None" in price_rows:
+        return price_rows["None"]
 
-    # Explicit blank-UOM rows (stored under "None")
-    chosen = pick("None")
-    if chosen is not None:
-        return chosen
-
-    # Last resort: any UOM bucket, highest rank available
-    for ranks in price_rows.values():
-        for rank in (3, 2, 1):
-            if rank in ranks:
-                return ranks[rank]
-
-    return frappe._dict()
+    # fall back to first available rate
+    return next(iter(price_rows.values()), frappe._dict())
 
 
 def _ensure_stock_uom(uoms: List[Dict[str, Any]], stock_uom: Optional[str]) -> List[Dict[str, Any]]:
@@ -653,9 +558,6 @@ class ItemDetailAggregator:
     ) -> None:
         self.pos_profile = pos_profile
         self.customer = customer
-        # Resolve the customer's group once so group-level Item Prices become
-        # candidates and can be ranked correctly (price priority fix).
-        self.customer_group = _get_customer_group(customer)
         self.price_list = price_list or pos_profile.get("selling_price_list")
         self.cache_ttl = self._resolve_ttl()
         self.today = nowdate()
@@ -725,7 +627,6 @@ class ItemDetailAggregator:
                     self.customer,
                     today=self.today,
                     ttl=self.cache_ttl,
-                    customer_group=self.customer_group,
                 )
             else:
                 price_rows = _fetch_item_prices(
@@ -734,7 +635,6 @@ class ItemDetailAggregator:
                     item_codes_tuple,
                     self.customer or "",
                     self.today,
-                    self.customer_group,
                 )
 
         # Stock, metadata, UOM and barcode data are reused both for batches and the
@@ -768,21 +668,9 @@ class ItemDetailAggregator:
             batch_rows = _fetch_batches(self.warehouse, _normalize_codes(batch_items))
             serial_rows = _fetch_serials(self.warehouse, _normalize_codes(serial_items))
 
-        # Price priority fix: build a nested map keyed by UOM *and* specificity
-        # rank so customer-specific / group / general rows that share the same
-        # UOM no longer overwrite each other. Selection happens in _select_price.
-        price_map: Dict[str, Dict[str, Dict[int, frappe._dict]]] = {}
+        price_map: Dict[str, Dict[str, frappe._dict]] = {}
         for row in price_rows:
-            rank = _price_rank(row.get("customer"), self.customer, self.customer_group)
-            if rank == 0:
-                # Row belongs to a different customer/group — never applicable.
-                continue
-            uom_key = row.get("uom") or "None"
-            bucket = price_map.setdefault(row.item_code, {}).setdefault(uom_key, {})
-            # Keep only the first row seen for a given (uom, rank); rows of the
-            # same rank+uom are genuine duplicates, so order is irrelevant.
-            if rank not in bucket:
-                bucket[rank] = row
+            price_map.setdefault(row.item_code, {})[row.get("uom") or "None"] = row
 
         stock_map = {row.item_code: row.actual_qty for row in stock_rows}
         meta_map = {row.name: row for row in meta_rows}

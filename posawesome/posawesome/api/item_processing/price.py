@@ -40,18 +40,68 @@ def update_price_list_rate(item_code, price_list, rate, uom=None):
 
 
 @frappe.whitelist()
-def get_price_for_uom(item_code, price_list, uom):
-    """Return Item Price for the given item, price list and UOM if it exists."""
+def get_price_for_uom(item_code, price_list, uom, customer=None):
+    """Return the correct Item Price rate for an item + price list + UOM.
+
+    Price priority fix
+    ------------------
+    The cart UOM-change path calls this when a line's UOM changes. The old
+    implementation used ``frappe.db.get_value`` which, when several Item Price
+    rows share the same item/price_list/uom (e.g. one customer-specific and one
+    general), returned an arbitrary row (effectively the last-saved one). That
+    broke customer pricing on UOM change.
+
+    We now select deterministically:
+        1. customer-specific row   (Item Price.customer == customer)
+        2. customer-group row      (Item Price.customer == customer's group)
+        3. general row             (Item Price.customer is blank)
+    Rate is never decided by creation/modified date.
+
+    ``customer`` is optional to preserve backward compatibility with existing
+    frontend callers; when omitted, only general rows are considered (matching
+    the previous default behaviour) but still chosen deterministically.
+    """
     if not (item_code and price_list and uom):
         return None
 
-    price = frappe.db.get_value(
+    customer_group = ""
+    if customer:
+        customer_group = frappe.db.get_value("Customer", customer, "customer_group") or ""
+
+    # Fetch every candidate row for this item/price_list/uom that could apply
+    # to the customer context, then rank in Python.
+    rows = frappe.get_all(
         "Item Price",
-        {
+        filters={
             "item_code": item_code,
             "price_list": price_list,
             "uom": uom,
+            "selling": 1,
         },
-        "price_list_rate",
+        fields=["price_list_rate", "customer"],
     )
-    return price
+
+    if not rows:
+        return None
+
+    def _rank(row_customer):
+        rc = (row_customer or "").strip()
+        if not rc:
+            return 1
+        if customer and rc == customer:
+            return 3
+        if customer_group and rc == customer_group:
+            return 2
+        return 0  # belongs to another customer/group -> ignore
+
+    best_rank = -1
+    best_rate = None
+    for row in rows:
+        rank = _rank(row.get("customer"))
+        if rank == 0:
+            continue
+        if rank > best_rank:
+            best_rank = rank
+            best_rate = row.get("price_list_rate")
+
+    return best_rate
