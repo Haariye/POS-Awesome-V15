@@ -9,7 +9,7 @@ export interface ServerStats {
 	uptime: number | null;
 }
 
-export function useServerStats(pollInterval = 10000, windowSize = 60) {
+export function useServerStats(pollInterval = 300000, windowSize = 60) {
 	const cpu = ref<number | null>(null);
 	const memory = ref<number | null>(null);
 	const memoryTotal = ref<number | null>(null);

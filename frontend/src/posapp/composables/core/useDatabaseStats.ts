@@ -2,7 +2,7 @@ import { ref, onUnmounted } from "vue";
 
 declare const frappe: any;
 
-export function useDatabaseStats(pollInterval = 10000, windowSize = 60) {
+export function useDatabaseStats(pollInterval = 300000, windowSize = 60) {
 	const dbStats = ref<any>(null);
 	const history = ref<any[]>([]);
 	const loading = ref(true);

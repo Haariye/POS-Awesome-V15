@@ -141,7 +141,7 @@ const {
 	history: serverHistory,
 	loading: serverLoading,
 	error: serverError,
-} = useServerStats(10000, 60);
+} = useServerStats(300000, 60);
 
 const serverPeak = computed(() => Math.max(...serverHistory.value.map((h) => h.cpu ?? 0), 0));
 const serverMemoryPeak = computed(() => Math.max(...serverHistory.value.map((h) => h.memory ?? 0), 0));

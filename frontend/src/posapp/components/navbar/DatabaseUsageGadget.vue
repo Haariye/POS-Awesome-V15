@@ -79,7 +79,7 @@ import { computed, inject } from "vue";
 import { useDatabaseStats } from "../../composables/core/useDatabaseStats";
 
 // Using JavaScript composable
-const { dbStats, history, loading, error } = useDatabaseStats(10000, 30);
+const { dbStats, history, loading, error } = useDatabaseStats(300000, 30);
 const __ = inject("__", (txt) => txt);
 
 const formattedDbSize = computed(() => formatBytes(dbStats.value?.db_size));
